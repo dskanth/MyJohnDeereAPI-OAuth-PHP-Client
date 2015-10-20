@@ -33,7 +33,18 @@ class OauthController extends BaseController {
 			$result = json_decode( $tw->request( '/users/@currentUser' ), true );
 
 			$message = 'Your unique Deere user id is: ' . $result['accountName'] . ' and your name is ' . $result['givenName']. ' '.$result['familyName'];
-			echo $message. "<br><br>";      exit;
+			echo $message. "<br><br>";
+			$deere_user_id = $result['accountName'];
+			$deere_name = $result['givenName']. ' '.$result['familyName'];
+			$deere_user_type = $result['userType'];
+			
+			// Print ID and Name of User
+			$user_email_endpoint = '/users/'.$deere_user_id.'/emailAddresses';
+			$email_result = json_decode( $tw->request( $user_email_endpoint ), true );
+			$user_email = $email_result['values'][0]['value'];
+			
+			echo 'Email: '.$user_email; 
+			exit;
 
 			//print_r($result); exit;
 		}
