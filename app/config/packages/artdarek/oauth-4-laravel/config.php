@@ -19,8 +19,8 @@ return array(
 	'consumers' => array(
 
 		'Deere' => array(
-			'client_id'     => 'enter app id here',
-			'client_secret' => 'Enter your app shared secret here',
+			'client_id'     => 'johndeere-4vyamQneYTL26o5Ix13tfrAQ',
+			'client_secret' => '94f13210b66ba707c594bef5c1c23efba132eca9',
 			// No scope - oauth1 doesn't need scope
 		)
 	)

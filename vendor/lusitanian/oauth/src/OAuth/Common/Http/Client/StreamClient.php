@@ -30,7 +30,7 @@ class StreamClient extends AbstractClient
         array $extraHeaders = array(),
         $method = 'POST'
     ) {
-        // Normalize method name
+		// Normalize method name
         $method = strtoupper($method);
 
         $this->normalizeHeaders($extraHeaders);
@@ -39,8 +39,8 @@ class StreamClient extends AbstractClient
             throw new \InvalidArgumentException('No body expected for "GET" request.');
         }
 
-        if (!isset($extraHeaders['Content-Type']) && $method === 'POST' && is_array($requestBody)) {
-            $extraHeaders['Content-Type'] = 'Content-Type: application/x-www-form-urlencoded';
+        if (!isset($extraHeaders['Content-type']) && $method === 'POST' && is_array($requestBody)) {
+            $extraHeaders['Content-type'] = 'Content-type: application/x-www-form-urlencoded';
         }
 
         $host = 'Host: '.$endpoint->getHost();
@@ -58,22 +58,84 @@ class StreamClient extends AbstractClient
         $extraHeaders['Content-length'] = 'Content-length: '.strlen($requestBody);
 
         $context = $this->generateStreamContext($requestBody, $extraHeaders, $method);
-
+		
         $level = error_reporting(0);
-        $response = file_get_contents($endpoint->getAbsoluteUri(), false, $context);
-        error_reporting($level);
+		$response = file_get_contents($endpoint->getAbsoluteUri(), false, $context);
+		
+		//$response_headers = $http_response_header;
+		//print_r($response_headers); exit;
+
+		error_reporting($level);
         if (false === $response) {
+            exit;
             $lastError = error_get_last();
             if (is_null($lastError)) {
-                throw new TokenResponseException(
-                    'Failed to request resource. HTTP Code: ' .
-                    ((isset($http_response_header[0]))?$http_response_header[0]:'No response')
-                );
+                throw new TokenResponseException('Failed to request resource.');
             }
             throw new TokenResponseException($lastError['message']);
         }
 
         return $response;
+    }
+	
+	/**
+     * Any implementing HTTP providers should send a request to the provided endpoint with the parameters.
+     * They can return an array containing response and its headers, and throw an exception on error.
+     *
+     * @param UriInterface $endpoint
+     * @param mixed        $requestBody
+     * @param array        $extraHeaders
+     * @param string       $method
+     *
+     * @return array
+     *
+     * @throws TokenResponseException
+     * @throws \InvalidArgumentException
+     */
+    public function retrieveResponseWithHeaders(
+        UriInterface $endpoint,
+        $requestBody,
+        array $extraHeaders = array(),
+        $method = 'POST'
+    ) {
+		// Normalize method name
+        $method = strtoupper($method);
+
+        $this->normalizeHeaders($extraHeaders);
+
+        if ($method === 'GET' && !empty($requestBody)) {
+            throw new \InvalidArgumentException('No body expected for "GET" request.');
+        }
+
+        if (!isset($extraHeaders['Content-type']) && $method === 'POST' && is_array($requestBody)) {
+            $extraHeaders['Content-type'] = 'Content-type: application/x-www-form-urlencoded';
+        }
+
+        $host = 'Host: '.$endpoint->getHost();
+        // Append port to Host if it has been specified
+        if ($endpoint->hasExplicitPortSpecified()) {
+            $host .= ':'.$endpoint->getPort();
+        }
+
+        $extraHeaders['Host']       = $host;
+        $extraHeaders['Connection'] = 'Connection: close';
+
+        if (is_array($requestBody)) {
+            $requestBody = http_build_query($requestBody, '', '&');
+        }
+        $extraHeaders['Content-length'] = 'Content-length: '.strlen($requestBody);
+
+        $context = $this->generateStreamContext($requestBody, $extraHeaders, $method);
+		
+        $level = error_reporting(0);
+		$response = file_get_contents($endpoint->getAbsoluteUri(), false, $context);
+		
+		$response_headers = $http_response_header;
+		//print_r($response_headers); exit;
+
+		error_reporting($level);
+        
+		return array('response' => $response, 'response_headers' => $response_headers);
     }
 
     private function generateStreamContext($body, $headers, $method)
@@ -82,7 +144,7 @@ class StreamClient extends AbstractClient
             array(
                 'http' => array(
                     'method'           => $method,
-                    'header'           => implode("\r\n", array_values($headers)),
+                    'header'           => implode("\r\n", array_values($headers) ),
                     'content'          => $body,
                     'protocol_version' => '1.1',
                     'user_agent'       => $this->userAgent,

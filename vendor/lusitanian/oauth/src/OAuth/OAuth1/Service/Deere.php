@@ -19,6 +19,7 @@ class Deere extends AbstractService
         TokenStorageInterface $storage,
         SignatureInterface $signature,
         UriInterface $baseApiUri = null
+		//$authorization_headers = null // Added by shasi
     ) {
         parent::__construct($credentials, $httpClient, $storage, $signature, $baseApiUri);
 
@@ -207,6 +208,10 @@ class Deere extends AbstractService
         $authorizationHeader = array(
             'Authorization' => $this->buildAuthorizationHeaderForAPIRequest($method, $uri, $token, $body)
         );
+		
+		//$this->authorization_headers = $this->buildAuthorizationHeaderForAPIRequest($method, $uri, $token, $body);
+		//echo $this->authorization_headers; exit;
+		
         $headers = array_merge($authorizationHeader, $extraHeaders);
 		//print_r($headers); exit;
 		
@@ -223,5 +228,14 @@ class Deere extends AbstractService
 		//return $response;
         
 		return $this->httpClient->retrieveResponseWithHeaders($uri, $body, $headers, $method);
+	}
+	
+	// Custom function to fetch the Authorization header based on the call
+	public function getRequestAuthorizationHeaders($path, $method = 'GET', $body = null) {
+		$uri = $this->determineRequestUriFromPath($path, $this->baseApiUri);
+		$token = $this->storage->retrieveAccessToken($this->service());
+		$authorization_headers = $this->buildAuthorizationHeaderForAPIRequest($method, $uri, $token, $body);
+		
+		return $authorization_headers;
 	}
 }
