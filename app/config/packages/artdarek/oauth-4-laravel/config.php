@@ -19,8 +19,8 @@ return array(
 	'consumers' => array(
 
 		'Deere' => array(
-			'client_id'     => 'johndeere-4vyamQneYTL26o5Ix13tfrAQ',
-			'client_secret' => '94f13210b66ba707c594bef5c1c23efba132eca9',
+			'client_id'     => 'Please enter your appi id from developer.deere.com',
+			'client_secret' => 'Please enter your appi shared secret from developer.deere.com',
 			// No scope - oauth1 doesn't need scope
 		)
 	)
