@@ -3,7 +3,7 @@ session_start();
 include_once 'deere_service.php';
 
 // Fetch API Catalog and store it in session
-if(!isset($_SESSION['catalog_urls'])) {
+if(!isset($_SESSION['catalog_urls']) || empty($_SESSION['catalog_urls'])) {
 	$catalog_result = json_decode( $deereService->request( '/' ), true );
 	$catalog_urls = array();
 	foreach($catalog_result['links'] as $result) {
