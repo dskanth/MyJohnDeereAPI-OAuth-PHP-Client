@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/store/postgresql
+END
+pgsql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/store/postgresql/pgsql.sql
+END

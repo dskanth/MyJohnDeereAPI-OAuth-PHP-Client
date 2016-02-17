@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth
+END
+OAuthRequest.php
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequest.php
+END
+OAuthRequestLogger.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequestLogger.php
+END
+OAuthStore.php
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthStore.php
+END
+OAuthRequester.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequester.php
+END
+OAuthException2.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthException2.php
+END
+OAuthRequestSigner.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequestSigner.php
+END
+OAuthSession.php
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthSession.php
+END
+OAuthRequestVerifier.php
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequestVerifier.php
+END
+OAuthServer.php
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthServer.php
+END
+OAuthDiscovery.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthDiscovery.php
+END
+OAuthRequester_ED.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/OAuthRequester_ED.php
+END

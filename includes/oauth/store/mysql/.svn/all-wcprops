@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/store/mysql
+END
+mysql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/store/mysql/mysql.sql
+END
+install.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/deere-datafeed/!svn/ver/4/trunk/html/oauth/store/mysql/install.php
+END
