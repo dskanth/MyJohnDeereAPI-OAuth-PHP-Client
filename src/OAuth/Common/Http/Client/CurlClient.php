@@ -102,7 +102,11 @@ class CurlClient extends AbstractClient
 		//echo $accessTokenUri; exit;
 		
         //curl_setopt($ch, CURLOPT_URL, $endpoint->getAbsoluteUri());
-		curl_setopt($ch, CURLOPT_URL, $accessTokenUri);
+				curl_setopt($ch, CURLOPT_URL, $accessTokenUri);
+				// Check if we have to use a proxy server
+			  if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
+			    curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
+			  }
 		
         if ($method === 'POST' || $method === 'PUT') {
             if ($requestBody && is_array($requestBody)) {
@@ -134,10 +138,6 @@ class CurlClient extends AbstractClient
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_AUTOREFERER, false);
 		
-		// Check if we have to use a proxy server
-		if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
-			curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
-		}
 		
         curl_setopt($ch, CURLOPT_HTTPHEADER, $extraHeaders);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
@@ -226,7 +226,11 @@ class CurlClient extends AbstractClient
 		//echo $accessTokenUri; exit;
 		
         //curl_setopt($ch, CURLOPT_URL, $endpoint->getAbsoluteUri());
-		curl_setopt($ch, CURLOPT_URL, $accessTokenUri);
+				curl_setopt($ch, CURLOPT_URL, $accessTokenUri);
+				// Check if we have to use a proxy server
+			  if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
+			    curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
+			  }
 		
         if ($method === 'POST' || $method === 'PUT') {
             if ($requestBody && is_array($requestBody)) {
@@ -257,11 +261,6 @@ class CurlClient extends AbstractClient
 		
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-		
-		// Check if we have to use a proxy server
-		if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
-			curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
-		}
 		
         curl_setopt($ch, CURLOPT_HTTPHEADER, $extraHeaders);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);

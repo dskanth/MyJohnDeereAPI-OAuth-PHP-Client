@@ -70,6 +70,10 @@ else {
 			
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $put_url);
+		  // Check if we have to use a proxy server
+		  if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
+		    curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
+		  }
 			curl_setopt($ch, CURLOPT_PUT, 1);
 			curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -82,10 +86,6 @@ else {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_AUTOREFERER, false);
 			
-			// Check if we have to use a proxy server
-			if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
-					$curl_options[CURLOPT_PROXY] = $_SESSION['config_params']['deere_proxy'];
-			}
 		
 			$headers = array();
 			$headers[] = 'Content-Type: application/zip';

@@ -64,6 +64,11 @@ function download_file($file_endpoint, $deereService, $offset = null, $size = nu
 	// Make Curl request
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $file_endpoint);
+
+// Check if we have to use a proxy server
+  if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
+    curl_setopt($ch, CURLOPT_PROXY, $_SESSION['config_params']['deere_proxy']);
+  }
 	curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -75,10 +80,6 @@ function download_file($file_endpoint, $deereService, $offset = null, $size = nu
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_AUTOREFERER, false);
 	
-	// Check if we have to use a proxy server
-	if(isset($_SESSION['config_params']['use_deere_proxy']) && $_SESSION['config_params']['use_deere_proxy'] == 1 && isset($_SESSION['config_params']['deere_proxy']) && $_SESSION['config_params']['deere_proxy'] != '') {
-			$curl_options[CURLOPT_PROXY] = $_SESSION['config_params']['deere_proxy'];
-	}
 
 	$headers = array();
 	$headers[] = 'Content-Type: application/vnd.deere.axiom.v3+xml';

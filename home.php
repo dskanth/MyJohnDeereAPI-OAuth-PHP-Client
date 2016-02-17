@@ -98,8 +98,8 @@ include_once 'deere_service.php';
 		<table id="user_details">
 		<tr><td>Account Name</td><td><?php echo $_SESSION['account_name']; ?></td></tr>
 		<tr><td>User Type</td><td><?php echo $_SESSION['user_type']; ?></td></tr>
-		<tr><td>Access Token</td><td><?php echo $_SESSION['access_token']; ?></td></tr>
-		<tr><td>Access Token Secret</td><td><?php echo $_SESSION['access_token_secret']; ?></td></tr>
+		<tr><td>Access Token</td><td><?php echo $config['access_token']; ?></td></tr>
+		<tr><td>Access Token Secret</td><td><?php echo $config['access_token_secret']; ?></td></tr>
 		</table>
       </div>
 		
