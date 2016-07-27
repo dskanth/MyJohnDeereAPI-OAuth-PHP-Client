@@ -1,0 +1,178 @@
+@font-face { 
+	font-family: "JohnDeereSans.Medium";
+	src: url('JohnDeereSans.Medium.eot');
+	src: url('JohnDeereSans.Medium.eot?#iefix') format('embedded-opentype'),
+		 url('JohnDeereSans.Medium.woff') format('woff'),
+		 url('JohnDeereSans.Medium.svg#webfont') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+a {
+	text-decoration: none;
+	color: #367c2b;
+}
+a:visited {
+	text-decoration: none;
+	color: #367c2b;
+}
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Calibri, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+button {
+	background: #EEEEEE;
+	width: 80px;
+	height: 40px;
+	border: 1px solid #CCCCCC;
+	font-weight: bold;
+	color: #696969;
+}
+button:hover {
+	border: 1px solid #367c2b;
+	cursor: pointer;
+}
+
+/* Styles used in multiple files */
+.border {
+	border: 1px solid #DCDCDC;
+	padding-bottom: 40px;
+	padding-top: 40px;
+	width: 70%;
+	margin: auto;
+}
+.footer {
+	height:40px;
+}
+.content {
+	border-collapse: collapse;
+	width:100%;
+}
+.error {
+	text-align:center;
+	color:#FF0000;
+	font-weight:bold;
+}
+.container {
+	padding-left:2%;
+}
+#title {
+	text-align: center;
+	font-weight: bold;
+	padding-bottom: 5px;
+}
+
+/* Styles used in Header.php */
+#myjd-header {
+	font-family: 'JohnDeereSans.Medium';
+	color: #367c2b;
+	font-size: 34px;
+	text-align:left;
+	padding-left:10%;
+	padding-top:20px;
+	padding-bottom: 15px;
+	font-weight: bold;
+}
+#myjd-subheader {
+	font-family: Calibri, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+	font-size:14px;
+	color:#888888;
+}
+#deere-logo {
+	padding-right:20%;
+}
+#separator-green {
+	width:100%;
+	background:#367c2b;
+	font-size:9px;
+}
+#separator-yellow {
+	width:100%;
+	background:#ffd700;
+	font-size:2px;
+}
+#tab-header {
+	width: 100%;
+	background: #E7E7E7;
+	height: 28px;
+	border-bottom: 1px solid #CCCCCC;
+}
+.header-item {
+	vertical-align: middle;
+	width: 8%;
+	font-family: 'JohnDeereSans.Medium';
+	padding-top: 3px;
+	padding-right: 3%;
+}
+.header-item-left {
+	padding-left: 10%;
+}
+.header-link, .header-link:visited {
+	color: #888888;
+}
+.header-link:hover, .header-link:visited:hover {
+	color: #000000;
+}
+
+/* Styles used in index.php */
+.section {
+	padding-left: 2%;
+	padding-bottom: 40px;
+}
+.parameter {
+	width: 35%;
+}
+#token-secret {
+	font-size: 14px;
+}
+
+/* Styles used in ListFiles.php */
+.file-table {
+	border-collapse: collapse;
+	width: 98%;
+	border-top:3px solid #CCCCCC;
+	border-left:3px solid #CCCCCC;
+	margin: auto;
+}
+.download-row-title {
+	width:10%;
+	font-weight:bold;
+	border-right:3px solid #CCCCCC;
+	border-bottom:3px solid #CCCCCC;
+}
+.row-title {
+	width:10%;
+	font-weight:bold;
+	border-right:3px solid #CCCCCC;
+	padding-left: 5px;
+}
+.download-button-cell {
+	width:30%;
+	text-align:center;
+	border-bottom:3px solid #CCCCCC;
+	border-right:3px solid #CCCCCC
+}
+.cell {
+	width:30%;
+	border-right:3px solid #CCCCCC;
+	text-align:center;
+}
+.downloadSuccess {
+	text-align:center;
+	font-weight:bold;
+	background:#b2FFb2;
+	width:80%;
+	margin:auto;
+}
+
+/* Styles used in FileUpload.php */
+.file-upload-title {
+	font-weight:bold;
+	padding-bottom:10px;
+	padding-left:2%;
+}
+#upload-success {
+	padding-left:2%;
+	color: #367c2b;
+}

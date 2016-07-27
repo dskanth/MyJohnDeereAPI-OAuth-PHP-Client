@@ -1,164 +1,274 @@
 <?php
-session_start();
-$config = include_once 'config.php';
+// MyJohnDeere OAuth Workflow
+// This page handles the OAuth workflow, up to acquiring the access token
+// @author Gordon Wang <WangGordon@JohnDeere.com>
+// @date July 2016
+require "Header.php";
 
-$renew_token = 0;
-// If access token exists, check its validity (1 year by default)
-if(isset($config['access_token']) && $config['access_token'] != '' && isset($config['token_issue_date']) && $config['token_issue_date'] != '') {
-	$token_issue_date = new DateTime($config['token_issue_date']);
-	$token_issue_date->add(new DateInterval('P365D'));
-	
-	$today_date = new DateTime();
-	if ( $token_issue_date <= $today_date ) {
-	  $renew_token = 1;
-	}
+// MyJohnDeere automated verifier
+// Replacing "oob" with an Internet-accessible callback page allows automation
+// of the OAuth verifier.  See callback.php for an example callback page.
+define("CALLBACK_URL", "oob");
+
+// If settings changed, update and save new settings
+if(!empty($_POST["appKey"]) && !empty($_POST["appSecret"]))
+{
+	$settings["App_Key"] = $_POST["appKey"];
+	$settings["App_Secret"] = $_POST["appSecret"];
+	saveSettings();
 }
+if(isset($_POST["proxyServer"]) && isset($_POST["proxyPort"]))
+{
+	$settings["Proxy"] = $_POST["proxyServer"].":".$_POST["proxyPort"];
+	if($settings["Proxy"] == ":")
+		$settings["Proxy"] = "";
+
+	$settings["ProxyAuth"] = $_POST["proxyUser"].":".$_POST["proxyPassword"];
+	if($settings["ProxyAuth"] == ":")
+		$settings["ProxyAuth"] = "";
+
+	saveSettings();
+}
+
+$accessToken = NULL;
+$authorizationURL = NULL;
+
+// Get an access token if an OAuth verifier was passed
+if(!empty($_POST["oauthVerifier"]))
+{
+	$oauth = new ProxyAwareOAuth($settings["App_Key"], $settings["App_Secret"], $settings["Proxy"], $settings["ProxyAuth"]);
+
+	// Grab the URL for access tokens
+	$response = json_decode($oauth->get($settings["MyJohnDeere_API_URL"], $headers));
+	$accessTokenURL = getURL($response, "oauthAccessToken");
+
+	// Set the request token and grab the access token
+	$oauth->setToken($_POST['reqToken'], $_POST['reqSecret']);
+	$accessToken = $oauth->getAccessToken($accessTokenURL, $_POST["oauthVerifier"], OAUTH_HTTP_METHOD_GET);
+
+	// Save the access token
+	$fd = fopen("savedToken.txt", "w");
+	fwrite($fd, time().PHP_EOL.$accessToken['oauth_token'].PHP_EOL.$accessToken['oauth_token_secret']);
+	fclose($fd);
+
+	// Delete any remaining request token secrets
+	if(file_exists("savedRequestToken.txt"))
+		unlink("savedRequestToken.txt");
+}
+// If the flag for request tokens is set
+else if(!empty($_POST["getToken"]))
+{
+	// Delete saved token if it exists
+	if(file_exists("savedToken.txt"))
+		unlink("savedToken.txt");
+
+	$oauth = new ProxyAwareOAuth($settings["App_Key"], $settings["App_Secret"], $settings["Proxy"], $settings["ProxyAuth"]);
 	
-if(isset($_SESSION['account_name']) && $_SESSION['account_name'] != '' && isset($config['access_token']) && $renew_token == 0) {
-	header("Location: home.php");
+	// Grab the URL for request tokens and base URL for authorization
+	$response = json_decode($oauth->get($settings["MyJohnDeere_API_URL"], $headers));
+	$requestTokenURL = getURL($response, "oauthRequestToken");
+	$authorizationURL = substr(getURL($response, "oauthAuthorizeRequestToken"), 0, -7); // Remove "{token}" from end
+
+	// Get request token and append to base URL for authorization	
+	$requestToken = $oauth->getRequestToken($requestTokenURL, CALLBACK_URL, OAUTH_HTTP_METHOD_GET);
+	$authorizationURL .= $requestToken['oauth_token'];
+
+	// Save the request token secret, used by callback.php
+	$fd = fopen("savedRequestToken.txt", "w");
+	fwrite($fd, $requestToken["oauth_token_secret"]);
+	fclose($fd);
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="images/favicon.ico">
 
-    <title>MyJD API</title>
+<script>
+// When "Change" is clicked for Application Credentials
+function changeAPICredentials()
+{
+	$("#savedCredentials").slideUp("slow");
+	$("#inputCredentials").css("display", "");
+}
 
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap_min.css" rel="stylesheet">
+// When "Change" is clicked for Proxy
+function changeProxy()
+{
+	$("#savedProxy").slideUp("slow");
+	$("#inputProxy").css("display", "");
+}
+</script>
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="css/navbar.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="js/ie-emulation-modes-warning.js"></script>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-	<style type="text/css">
-	#fetch_access_token { color: green; padding: 10px; font-weight: bold; }
-	#fetching_token { display: none; font-size: 19px; color: green; }
-	</style>
-  </head>
-
-  <body>
-  
-    <div class="container">
-
-      <!-- Static navbar -->
-      <nav class="navbar navbar-default">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">MyJD API</a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-            </ul>
-			
-			<ul class="nav navbar-nav navbar-right">
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </nav>
-
-    </div> <!-- /container -->
-	
-	<div class="container">
-      <div class="page-header">
-        <h2>Welcome user!</h2>
-		<?php if(!isset($config['access_token']) || $config['access_token'] == '' || $renew_token == 1) { ?>
-		<h5><input type="button" name="fetch_access_token" id="fetch_access_token" value="Fetch Access Token" onClick="fetch_access_token_and_secret()">
-		&nbsp;&nbsp;&nbsp;<span id="fetching_token">Please wait...</span><br></h5>
-		<?php } else {
-			header("Location: home.php");
-		}
-		?>
+<div class="border">
+	<div class="section"><b>Proxy Configuration</b>
+		<div id="savedProxy">
+			<?php echo $settings["Proxy"] == "" ? "None" : $settings["Proxy"]; ?><br>
+			<button onclick="changeProxy();">Change</button>
 		</div>
-		
-    </div>
+		<form action="index.php" method="post" id="inputProxy" style="display:none">
+			<table>
+				<tr>
+					<td><input name="proxyServer" type="text" size="40" value="<?php echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[0]; ?>">
+					<br>Proxy server</td>
+					<td><input name="proxyPort" type="text" maxlength="5" value="<?php  echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[1]; ?>">
+					<br>Proxy port</td>
+				</tr>
+				<tr>
+					<td>Proxy username:</td>
+					<td><input type="text" name="proxyUser" size="35"></td>
+				</tr>
+				<tr>
+					<td>Proxy password:</td>
+					<td><input type="password" name="proxyPassword" size="35"></td>
+				</tr>
+			</table><br>
+			<button type="submit" name="proxy" value="submit">Save</button>
+		</form>
+	</div>
+
+	<div class="section"><b>Application Credentials</b><br>
+<?php
+// Attempt to load saved access tokens
+$fd = file_exists("savedToken.txt") ? fopen("savedToken.txt", "r") : false;
+
+if($fd == false) // no token found
+	$accessToken = "none";
+else if(time() - intval(fgets($fd)) > 60*60*24*300) // expired token found
+	$accessToken = "expired";
+else //valid token found
+{
+	$token = trim(fgets($fd)); // Remove \n from end
+	$secret = trim(fgets($fd));
 	
-	<footer class="footer">
-      <div class="container">
-        <p class="text-muted">MyJD API</p>
-      </div>
-    </footer>
+	if($token == "" || $secret == "")
+		$accessToken = "none";
+	else
+		$accessToken = ["oauth_token" => $token, "oauth_token_secret" => $secret];
+}
+	
+if($fd)
+	fclose($fd);
 
+// If app key or app secret isn't set, show form to set them
+if($settings["App_Key"] == "" || $settings["App_Secret"] == "")
+{
+	echo "
+	No valid credentials found.
+	<form action='index.php' method='post'>
+		<div id='inputCredentials'>
+		<table class='content'>
+			<tr>
+				<td class='parameter'>Enter application key:</td>
+				<td><input type='text' name='appKey' size='60'></input></td>
+			</tr>
+			<tr>
+				<td>Enter application secret:</td>
+				<td><input type='text' name='appSecret' size='60'></input><td>
+			</tr>
+		</table>
+		<button type='submit' value='Submit'>Submit</button>
+		</div>
+	</form>";
+}
+// Otherwise, allow them to be changed (but not if there's an access token loaded)
+else
+{
+	echo "
+	<div id='savedCredentials'>
+		<table class='content'>
+			<tr>
+				<td class='parameter'>Saved application key:</td>
+				<td>".$settings["App_Key"]."</td>
+			</tr>
+			<tr>
+				<td>Saved application secret:</td>
+				<td>".$settings["App_Secret"]."<td>
+			</tr>
+		</table>";
+	echo gettype($accessToken) == "array" ? "</div>": // Don't allow change if access token loaded
+		"<button onclick='changeAPICredentials();'>Change</button></div>";
+	
+	// Form to change current app key and secret
+	echo "
+	<form action='index.php' method='post' id='inputCredentials' style='display:none'>
+		<table class='content'>
+			<tr>
+				<td class='parameter'>Enter application key:</td>
+				<td><input type='text' name='appKey' value='".$settings["App_Key"]."' size='60'></input></td>
+			</tr>
+			<tr>
+				<td>Enter application secret:</td>
+				<td><input type='text' name='appSecret' value='".$settings["App_Secret"]."' size='60'></input><td>
+			</tr>
+		</table>
+		<button type='submit' value='Submit'>Submit</button>
+	</form>";
+}
+?>
+	</div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery_min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
-	<script>
-	function fetch_access_token_and_secret() {
-		jQuery.ajax({
-			  url: 'fetch_access_token_value.php',
-			  type: 'POST',
-			  data: { request_token_date: '<?php echo date("m/d/Y"); ?>', 'renew_token': '<?php echo $renew_token; ?>' },
-			  beforeSend: function() {
-				  jQuery("#fetch_access_token").prop('disabled', true);
-				  jQuery("#fetch_access_token").css("color", "grey");
-				  jQuery("#fetching_token").show();
-			  },
-			  complete: function() {
-				  jQuery("#fetching_token").hide();
-			  },
-			  success: function(data) {
-					//alert(data); return false;
-					
-				  	if(data != '') {
-							jQuery("#fetch_access_token").prop('disabled', false);
-							jQuery("#fetch_access_token").css("color", "green");
-							window.location = 'home.php';
-						}
-						else {
-							alert("Oops, an error occurred in fetching Access Token. Please try later");
-						}
-			  },
-			  timeout: 120000, // 120 seconds
-			  error: ajaxError // handle error
-		});
-	}
-	function ajaxError(request, type, errorThrown) {
-		var message = "Oops…\n"; 
-		switch (type) {
-		case 'timeout':
-		message += "The request timed out.";
-		break;
-		case 'notmodified':
-		message += "The request was not modified but was not retrieved from the cache.";
-		break;
-		case 'parsererror':
-		message += "XML/Json format is bad.";
-		break;
-		default:
-		message += "HTTP Error (" + request.status + " " + request.statusText + ").";
-		}
-		message += "\n";
-		alert(message);
-	}
-	</script>
-  </body>
-</html>
+	<div class="section"><b>OAuth Access Token</b><br>
+<?php
+// If no app key or secret, delete any remaing access tokens
+if($settings["App_Key"] == "" || $settings["App_Secret"] == "")
+{
+	if(file_exists("savedToken.txt"))
+		unlink("savedToken.txt");
+	echo "Please set the application key and secret.";
+}
+// If there's a valid access token, display it
+else if(gettype($accessToken) == "array")
+{
+	echo "
+	Token successfully loaded.
+	<table class='content'>
+		<tr>
+			<td class='parameter'>Token:</td>
+			<td>".$accessToken['oauth_token']."</td>
+		</tr>
+		<tr>
+			<td>Secret:</td>
+			<td id='token-secret'>".$accessToken['oauth_token_secret']."</td>
+		</tr>
+	</table>
+	<form action=index.php method=post>
+		<button name='getToken' type='submit' value='getToken'>New Token</button>
+	</form>";
+}
+// If there's no valid access token or authorization URL, display the button to get new token
+else if($authorizationURL == NULL)
+{
+	echo $accessToken == "none"?"No token found.<br>":"Token expired.<br>";
+	echo "
+	<form action=index.php method=post>
+		<button name='getToken' type='submit' value='getToken'>New Token</button>
+	</form>";
+}
+// If there's a no valid token, but authorization URL is set
+else
+{
+	if(CALLBACK_URL == "oob") // For no callback, show the form to enter verifier
+		echo "
+		Enter OAuth verifier from<br><a href='$authorizationURL' target='_blank'>$authorizationURL</a>
+		<form action='index.php' method='post'>
+			<table>
+				<tr>
+					<td class='parameter'>Request token:</td>
+					<td><input type='text' size='60' name='reqToken' value='".$requestToken["oauth_token"]."' readonly></td>
+				</tr>
+				<tr>
+					<td class='parameter'>Request token secret:</td>
+					<td><input type='text' size='60' name='reqSecret' value='".$requestToken["oauth_token_secret"]."' readonly></td>
+				</tr>
+				<tr>
+					<td class='parameter'>OAuth verifier:</td>
+					<td><input type='text' size='60' name='oauthVerifier'></input></td>
+				</tr>
+			</table>
+			<button type='submit' value='Submit'>Submit</button>
+		</form>";
+	else // If there's a callback URL, just redirect to the authorization URL
+		header("Location: $authorizationURL");
+}
+?>
+	</div>
+</div>
+
+<div class="footer">&nbsp;</div>
