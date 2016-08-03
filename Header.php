@@ -9,7 +9,7 @@
 // Determine if a tab item should be highlighted
 function boldLinks(string $link)
 {
-	echo strpos($_SERVER["REQUEST_URI"], $link) === FALSE ? "" : "style='font-weight:bold;color:#000000;'";
+	echo strpos($_SERVER["REQUEST_URI"], $link) === FALSE ? "" : "style='color:#000000;border-bottom:3px solid #367c2b;padding-bottom:6px'";
 }
 ?>
 <table class="content">
@@ -30,10 +30,10 @@ function boldLinks(string $link)
 </tr>
 </table>
 <div id='tab-header'>
-	<span class="header-item-left header-item"><a class="header-link" href="index.php" <?php boldLinks("index.php"); ?>>Home</a></span>
+	<span class="header-item-left header-item"><a class="header-link" href="index.php" <?php boldLinks("index.php"); ?>>OAuth</a></span>
 	<span class="header-item"><a class="header-link" href="UploadFile.php" <?php boldLinks("UploadFile.php"); ?>>Upload File</a></span>
 	<span class="header-item"><a class="header-link" href="ListFiles.php" <?php boldLinks("ListFiles.php"); ?>>List Files</a></span>
-</div><br><br>
+</div>
 
 <?php
 require_once "APICredentials.php";
@@ -88,7 +88,7 @@ $settings =
 function noTokenFound()
 {
 	echo "
-	<div class='border'>
+	<div id='error-border'>
 		<div class='error'>
 			No valid token found.<br>
 			<button onclick='".'window.location.href="index.php"'."'>Home</button>

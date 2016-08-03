@@ -96,34 +96,34 @@ function changeProxy()
 }
 </script>
 
-<div class="border">
-	<div class="section"><b>Proxy Configuration</b>
-		<div id="savedProxy">
-			<?php echo $settings["Proxy"] == "" ? "None" : $settings["Proxy"]; ?><br>
-			<button onclick="changeProxy();">Change</button>
-		</div>
-		<form action="index.php" method="post" id="inputProxy" style="display:none">
-			<table>
-				<tr>
-					<td><input name="proxyServer" type="text" size="40" value="<?php echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[0]; ?>">
-					<br>Proxy server</td>
-					<td><input name="proxyPort" type="text" maxlength="5" value="<?php  echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[1]; ?>">
-					<br>Proxy port</td>
-				</tr>
-				<tr>
-					<td>Proxy username:</td>
-					<td><input type="text" name="proxyUser" size="35"></td>
-				</tr>
-				<tr>
-					<td>Proxy password:</td>
-					<td><input type="password" name="proxyPassword" size="35"></td>
-				</tr>
-			</table><br>
-			<button type="submit" name="proxy" value="submit">Save</button>
-		</form>
+<div class="page-title">OAuth Workflow</div>
+<div id="proxy-configuration"><b>Proxy Configuration</b>
+	<div id="savedProxy">
+		<?php echo $settings["Proxy"] == "" ? "None" : $settings["Proxy"]; ?><br>
+		<button onclick="changeProxy();">Change</button>
 	</div>
+	<form action="index.php" method="post" id="inputProxy" style="display:none">
+		<table>
+			<tr>
+				<td><input name="proxyServer" type="text" size="40" value="<?php echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[0]; ?>">
+				<br>Proxy server</td>
+				<td><input name="proxyPort" type="text" maxlength="5" value="<?php  echo  $settings["Proxy"] == "" ? "":explode(":", $settings["Proxy"])[1]; ?>">
+				<br>Proxy port</td>
+			</tr>
+			<tr>
+				<td>Proxy username:</td>
+				<td><input type="text" name="proxyUser" size="35"></td>
+			</tr>
+			<tr>
+				<td>Proxy password:</td>
+				<td><input type="password" name="proxyPassword" size="35"></td>
+			</tr>
+		</table><br>
+		<button type="submit" name="proxy" value="submit">Save</button>
+	</form>
+</div>
 
-	<div class="section"><b>Application Credentials</b><br>
+	<div id="application-credentials"><b>Application Credentials</b><br>
 <?php
 // Attempt to load saved access tokens
 $fd = file_exists("savedToken.txt") ? fopen("savedToken.txt", "r") : false;
@@ -155,12 +155,12 @@ if($settings["App_Key"] == "" || $settings["App_Secret"] == "")
 		<div id='inputCredentials'>
 		<table class='content'>
 			<tr>
-				<td class='parameter'>Enter application key:</td>
-				<td><input type='text' name='appKey' size='60'></input></td>
+				<td class='parameter'>Enter app key:</td>
+				<td><input type='text' name='appKey' size='60'></td>
 			</tr>
 			<tr>
-				<td>Enter application secret:</td>
-				<td><input type='text' name='appSecret' size='60'></input><td>
+				<td>Enter app secret:</td>
+				<td><input type='text' name='appSecret' size='60'><td>
 			</tr>
 		</table>
 		<button type='submit' value='Submit'>Submit</button>
@@ -174,11 +174,11 @@ else
 	<div id='savedCredentials'>
 		<table class='content'>
 			<tr>
-				<td class='parameter'>Saved application key:</td>
+				<td class='parameter'>App key:</td>
 				<td>".$settings["App_Key"]."</td>
 			</tr>
 			<tr>
-				<td>Saved application secret:</td>
+				<td>App secret:</td>
 				<td>".$settings["App_Secret"]."<td>
 			</tr>
 		</table>";
@@ -190,11 +190,11 @@ else
 	<form action='index.php' method='post' id='inputCredentials' style='display:none'>
 		<table class='content'>
 			<tr>
-				<td class='parameter'>Enter application key:</td>
+				<td class='parameter'>Enter app key:</td>
 				<td><input type='text' name='appKey' value='".$settings["App_Key"]."' size='60'></input></td>
 			</tr>
 			<tr>
-				<td>Enter application secret:</td>
+				<td>Enter app secret:</td>
 				<td><input type='text' name='appSecret' value='".$settings["App_Secret"]."' size='60'></input><td>
 			</tr>
 		</table>
@@ -204,14 +204,14 @@ else
 ?>
 	</div>
 
-	<div class="section"><b>OAuth Access Token</b><br>
+	<div id="oauth-access-token"><b>OAuth Access Token</b><br>
 <?php
 // If no app key or secret, delete any remaing access tokens
 if($settings["App_Key"] == "" || $settings["App_Secret"] == "")
 {
 	if(file_exists("savedToken.txt"))
 		unlink("savedToken.txt");
-	echo "Please set the application key and secret.";
+	echo "Please set the application key and secret first.";
 }
 // If there's a valid access token, display it
 else if(gettype($accessToken) == "array")
@@ -268,7 +268,6 @@ else
 		header("Location: $authorizationURL");
 }
 ?>
-	</div>
 </div>
 
-<div class="footer">&nbsp;</div>
+<div class="footer">MyJohnDeere API</div>
