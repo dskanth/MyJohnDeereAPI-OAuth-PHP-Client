@@ -132,7 +132,8 @@ class ProxyAwareOAuth
 		{
 			$protected_resource_url .= "?";
 			foreach($extra_parameters as $key => $parameter)
-				$protected_resource_url .= $key."=".$parameter."&";
+				$protected_resource_url .= urlencode($key)."=".urlencode($parameter)."&";
+			$protected_resource_url = substr($protected_resource_url, 0, -1);
 		}
 
 		// Set URL, headers; perform the HTTP request
@@ -268,7 +269,7 @@ class ProxyAwareOAuth
 		
 		// Generate a signature, including any query parameters
 		foreach($query_parameters as $key => $value)
-			$params[$key] = $value;
+			$params[urlencode($key)] = urlencode($value);
 		$signature = $this->generateSignature($protected_resource_url, $http_method, $params);
 
 		// Append the signature to authorization headers
