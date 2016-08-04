@@ -48,33 +48,16 @@ while($organizationsUri)
 }
 ?>
 
-<div class="border">
-	<div class="file-upload-title">Upload File</div>
-	<form class="container" action="UploadFile.php" method="post" <?php echo isset($_POST["orgSubmit"]) || isset($_POST["upload"]) ? "hidden" : ""; ?>>
-	Select an organization to receive file.<br>
-	<?php
-	// Echo radio button choices for organizations
-	foreach($organizations as $key=>$value)
-		echo "<input type='radio' name='orgSelection' value='$value'> $key<br>";
-	?>
-	<button type="submit" name="orgSubmit" value="organizationSubmitted">Submit</button>
-	</form>
-
-	<form class="container" action="UploadFile.php" method="post" enctype="multipart/form-data" <?php echo isset($_POST["orgSubmit"]) ? "" : "hidden"; ?>>
-		Select a file to upload.<br>
-		Only valid ZIP archives and PDFs will upload properly.<br>
-		<input type="text" name="fileLink" value="<?php echo $_POST["orgSelection"] ?? ""; ?>" hidden>
-		<input type="file" name="fileUpload"><br><br>
-		<button type="submit" name="upload">Upload</button>
-	</form>
+<div class="page-title">Upload a file</div>
 <?php
-if(isset($_POST["upload"]))
+// Upload files if all form inputs set
+if(!empty($_POST["orgLink"]) && !empty($_FILES["fileUpload"]["name"]) && isset($_POST["upload"]))
 {
 	// POST to the organization's /files URL and get a file ID
 	$body = '{ "name" : "'.$_FILES["fileUpload"]["name"].'"}'; // The JSON POST body
 	$headers["Content-Type"] = "application/vnd.deere.axiom.v3+json";
- 	$response = $oauth->post($_POST["fileLink"], $body, $headers);
- 	
+ 	$response = $oauth->post($_POST["orgLink"], $body, $headers);
+
  	// Get the returned file URL, get contents of file
  	$fileLocation = getFileLocation($response);
  	$contents = file_get_contents($_FILES["fileUpload"]["tmp_name"]);
@@ -83,13 +66,32 @@ if(isset($_POST["upload"]))
  	$headers["Content-Type"] = "application/zip";
  	$oauth->put($fileLocation, $contents, $headers);
  	
- 	echo "
- 	<div id='upload-success'>
- 		Uploaded ".$_FILES["fileUpload"]["name"]."<br>
- 		<button onclick='".'window.location.href="index.php"'."'>Home</button>
- 	</div>";
+ 	echo "<div id='file-upload-complete'>Uploaded ".$_FILES["fileUpload"]["name"]."</div>";
 }
+else if(isset($_POST["upload"]))
+	echo "<div id='incomplete-form-submission'>Incomplete submission.</div>";
 ?>
-</div>
 
-<div class="footer"></div>
+<form action="UploadFile.php" method="post" enctype="multipart/form-data">
+	<table id="file-upload-options">
+		<tr>
+			<td id="organization-selection-container">
+				Select an organization to receive file.<br>
+				<?php
+				// Echo radio button choices for organizations
+				foreach($organizations as $key=>$value)
+					echo "<input type='radio' name='orgLink' value='$value'> $key<br>";
+				?>
+			</td>
+			<td style="width:1%"></td>
+			<td id="file-upload-container" valign="top">
+				Select a file to upload.<br>
+				Only valid ZIP archives and PDFs will upload properly.<br>
+				<input type="file" name="fileUpload"><br><br>
+				<button type="submit" name="upload">Upload</button>
+			</td>
+		</tr>
+	</table>
+</form>
+
+<div class="footer">MyJohnDeere API</div>

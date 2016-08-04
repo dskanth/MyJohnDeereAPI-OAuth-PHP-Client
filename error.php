@@ -7,7 +7,7 @@
 require "Header.php";
 ?>
 
-<div class="border">
+<div id="error-border">
 	<div class="error">
 		A PHP exception occurred<br>
 		<?php echo urldecode($_POST["message"]); ?>
@@ -19,5 +19,3 @@ require "Header.php";
 		<?php echo urldecode($_POST["trace"]); ?>
 	</div>
 </div>
-
-<div class="footer">&nbsp;</div>

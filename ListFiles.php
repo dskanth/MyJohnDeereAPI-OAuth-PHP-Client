@@ -43,9 +43,7 @@ if(!empty($_POST["downloadLink"]))
 	downloadFile($_POST["fileName"], $_POST["downloadLink"], floatval(substr($_POST["fileSize"], 0, -3)));
 ?>
 
-<div class="border" style="width:80%">
-<div id="title">Available Files</div>
-<table class="file-table">
+<div class="page-title">List files</div>
 <?php
 // Get current user
 $response = json_decode($oauth->get($settings["MyJohnDeere_API_URL"], $headers));
@@ -72,7 +70,7 @@ while($organizationsUri)
 // Go through all organizations and get files
 foreach($organizations as $name => $link)
 {
-	echo "<div class='container'><b>$name</b></div>";
+	echo "<div class='organization-files'><div class='organization-header'>$name</div>";
 
 	// Call to organization's /files, get a nextPage link if available
 	$response = json_decode($oauth->get($link, $headers));
@@ -113,6 +111,7 @@ foreach($organizations as $name => $link)
 
 	// Generate and print the HTML table
 	$rowTitles = [0 => "ID", 1 => "Name", 2 => "Size", 3 => ""];
+	echo "<table class='file-table'>";
 	for($i = 0; $i < ($rows+1)*12; $i++)
 	{
 		if(!isset($files[$i]))
@@ -139,9 +138,8 @@ foreach($organizations as $name => $link)
 		if($i % 3 == 2)
 			echo "</tr>";
 	}
+	echo "</table></div>";
 }
 ?>
-</table>
-</div>
 
-<div class="footer">&nbsp;</div>
+<div class="footer">MyJohnDeere API</div>
