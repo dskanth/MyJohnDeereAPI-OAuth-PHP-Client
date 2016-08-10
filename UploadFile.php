@@ -5,23 +5,6 @@
 // @date July 2016
 require "Header.php";
 
-// Gets a file's link from a response header
-// Isolates the "Location" header
-// @param $response -- HTML response header to parse
-// @return file link, false if not found
-function getFileLocation($response)
-{
-	$response = explode("\n", $response);
- 	foreach($response as $header)
- 	{
- 		if(strpos($header, "Location") !== false)
- 		{
- 			$link = explode(" ", $header)[1];
- 			return trim($link);
- 	}	}
- 	return false;
-}
-
 $oauth = new ProxyAwareOAuth($settings["App_Key"], $settings["App_Secret"], $settings["Proxy"], $settings["ProxyAuth"]);
 loadToken($oauth);
 
@@ -59,7 +42,7 @@ if(!empty($_POST["orgLink"]) && !empty($_FILES["fileUpload"]["name"]) && isset($
  	$response = $oauth->post($_POST["orgLink"], $body, $headers);
 
  	// Get the returned file URL, get contents of file
- 	$fileLocation = getFileLocation($response);
+ 	$fileLocation = getHeader($response, "Location");
  	$contents = file_get_contents($_FILES["fileUpload"]["tmp_name"]);
 
  	// PUT the file data to the file URL
@@ -94,4 +77,4 @@ else if(isset($_POST["upload"]))
 	</table>
 </form>
 
-<div class="footer">MyJohnDeere API</div>
+<div class="footer"></div>

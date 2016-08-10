@@ -33,6 +33,7 @@ function boldLinks(string $link)
 	<span class="header-item-left header-item"><a class="header-link" href="index.php" <?php boldLinks("index.php"); ?>>OAuth</a></span>
 	<span class="header-item"><a class="header-link" href="UploadFile.php" <?php boldLinks("UploadFile.php"); ?>>Upload File</a></span>
 	<span class="header-item"><a class="header-link" href="ListFiles.php" <?php boldLinks("ListFiles.php"); ?>>List Files</a></span>
+	<span class="header-item"><a class="header-link" href="ListMonitor.php" <?php boldLinks("ListMonitor.php"); ?>>File List Monitor</a></span>
 </div>
 
 <?php
@@ -132,5 +133,22 @@ function getURL($response, $rel)
 			return $link->uri;
 	}
 	return false;
+}
+
+// Parses an HTML header
+// @param $response -- HTML response header to parse
+// @return file link, false if not found
+function getHeader($response, $target)
+{
+	$response = explode("\n", $response);
+ 	foreach($response as $header)
+ 	{
+ 		if(strpos($header, $target) !== false)
+ 		{
+ 			$link = explode(" ", $header)[1];
+ 			return trim($link);
+		}
+	}
+ 	return false;
 }
 ?>
