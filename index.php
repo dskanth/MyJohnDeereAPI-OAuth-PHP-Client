@@ -270,4 +270,4 @@ else
 ?>
 </div>
 
-<div class="footer">MyJohnDeere API</div>
+<div class="footer"></div>

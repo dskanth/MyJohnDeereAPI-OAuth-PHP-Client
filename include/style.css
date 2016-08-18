@@ -38,12 +38,6 @@ button:hover {
 .footer {
 	margin-top:40px;
 	height:40px;
-	background:#222222;
-	color:#BBBBBB;
-	line-height:40px;
-	font-size:14px;
-	text-align:center;
-	font-family: 'JohnDeereSans.Medium';
 }
 .content {
 	border-collapse: collapse;
@@ -203,8 +197,6 @@ button:hover {
 	text-align:center;
 	font-weight:bold;
 	background:#b2FFb2;
-	width:80%;
-	margin:auto;
 }
 .organization-files {
 	background:#FFFFFF;
@@ -260,4 +252,17 @@ button:hover {
 #file-upload-options {
 	margin:auto;
 	width:95%;
+}
+
+/* ListMonitor.php */
+#changes-header {
+	font-family: 'JohnDeereSans.Medium';
+	font-size:18px;
+	padding-bottom:5px;
+}
+.deleted-file {
+	color:#FF0000;
+}
+.new-file {
+	color:#367c2b;
 }

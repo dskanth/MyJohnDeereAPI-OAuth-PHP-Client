@@ -39,8 +39,23 @@ function downloadFile(string $name, string $link, float $size)
 	echo "<div class='downloadSuccess'>Downloaded <a href='downloads/$name' download>$name</a></div>";
 }
 
-if(!empty($_POST["downloadLink"]))
-	downloadFile($_POST["fileName"], $_POST["downloadLink"], floatval(substr($_POST["fileSize"], 0, -3)));
+// Deletes a file
+// @param $name -- the URL-encoded name of the file
+// @param $link -- the file's link
+function deleteFile(string $name, string $link)
+{
+	global $oauth, $headers;
+	$oauth->delete($link, $headers);
+	echo "<div class='downloadSuccess'>Deleted $name</div>";
+}
+
+if(isset($_POST['file-option']))
+{
+	if($_POST['file-option'] == "download")
+		downloadFile($_POST["fileName"], $_POST["downloadLink"], floatval(substr($_POST["fileSize"], 0, -3)));
+	else if($_POST['file-option'] == "delete")
+		deleteFile($_POST["fileName"], $_POST["downloadLink"]);
+}
 ?>
 
 <div class="page-title">List files</div>
@@ -129,7 +144,8 @@ foreach($organizations as $name => $link)
 					<input name='fileName' value='".urlencode($files[$i-6])."' hidden>
 					<input name='fileSize' value='".$files[$i-3]."' hidden>
 					<input name='downloadLink' value='$files[$i]' hidden>
-					<button type='submit'>Download</button>
+					<button type='submit' name='file-option' value='download'>Download</button>
+					<button type='submit' name='file-option' value='delete'>Delete</button>
 				</form>
 			</td>";
 		else
@@ -142,4 +158,4 @@ foreach($organizations as $name => $link)
 }
 ?>
 
-<div class="footer">MyJohnDeere API</div>
+<div class="footer"></div>

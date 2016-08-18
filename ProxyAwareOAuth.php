@@ -8,6 +8,7 @@
 define("OAUTH_HTTP_METHOD_GET", "GET");
 define("OAUTH_HTTP_METHOD_POST", "POST");
 define("OAUTH_HTTP_METHOD_PUT", "PUT");
+define("OAUTH_HTTP_METHOD_DELETE", "DELETE");
 
 class ProxyAwareOAuth
 {
@@ -55,22 +56,21 @@ class ProxyAwareOAuth
 	public function getRequestToken(string $request_token_url, string $callback_url = "oob", string $http_method = OAUTH_HTTP_METHOD_GET) : array
 	{
 		// Copy the curl handle template
-		$ch = $this->ch;
+		$ch = curl_copy_handle($this->ch);
 
 		// Generate authorization headers, passing oauth_callback as a "query parameter" so it's included in the signature
 		// However, oauth_callback must be in the authorization header
-		$callback_url = urlencode($callback_url); // Encode the callback url
 		$headers = ["Authorization: ".$this->generateAuthorizationHeaders($http_method, $request_token_url, ["oauth_callback" => $callback_url])];
-		$headers[0] .= ', oauth_callback="'.$callback_url.'"'; // Add oauth_callback to header
+		$headers[0] .= ', oauth_callback="'.urlencode($callback_url).'"'; // Add oauth_callback to header
 
 		// Set the URL, headers; perform the HTTP request
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_URL, $request_token_url);
 		$response = explode("&", curl_exec($ch));
-		curl_close($ch);
 
 		if(curl_error($ch))
 			throw new Exception(curl_error($ch));
+		curl_close($ch);
 
 		// The curl request returns in format "oauth_token=TOKEN&oauth_token_secret=SECRET&oauth_callback_confirmed=true"
 		// Convert this to $request_token = TOKEN, $request_token_secret = SECRET
@@ -88,7 +88,7 @@ class ProxyAwareOAuth
 	public function getAccessToken(string $access_token_url, string $auth_verifier, string $http_method = OAUTH_HTTP_METHOD_GET) : array
 	{
 		// Copy the curl handle template
-		$ch = $this->ch;
+		$ch = curl_copy_handle($this->ch);
 
 		// Generate authorization headers, passing oauth_verifier as a "query parameter" so it's included in the signature
 		// However, oauth_verifier must be in the authorization header
@@ -99,10 +99,10 @@ class ProxyAwareOAuth
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_URL, $access_token_url);
 		$response = explode("&", curl_exec($ch));
-		curl_close($ch);
 		
-		if(curl_error($this->ch))
-			throw new Exception(curl_error($this->ch));
+		if(curl_error($ch))
+			throw new Exception(curl_error($ch));
+		curl_close($ch);
 
 		// The curl request returns in format "oauth_token=TOKEN&oauth_token_secret=SECRET"
 		// Convert this to $access_token = TOKEN, $access_token_secret = SECRET
@@ -116,10 +116,10 @@ class ProxyAwareOAuth
 	// @param $http_headers -- headers for request, excluding Auth
 	// @param $extra_parameters -- query parameters
 	// @return the server response
-	public function get(string $protected_resource_url, array $http_headers = [], array $extra_parameters = []) : string
+	public function get(string $protected_resource_url, array $http_headers = [], bool $return_headers = false, array $extra_parameters = [])
 	{
 		// Copy the curl handle template
-		$ch = $this->ch;
+		$ch = curl_copy_handle($this->ch);
 
 		// Build the request headers
 		$headers = [];
@@ -137,15 +137,28 @@ class ProxyAwareOAuth
 		}
 
 		// Set URL, headers; perform the HTTP request
+		if($return_headers)
+			curl_setopt($ch, CURLOPT_HEADER, true);
+
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_URL, $protected_resource_url);
 		$response = curl_exec($ch);
+
+		if($return_headers)
+		{
+			$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+			$header = substr($response, 0, $header_size);
+			$body = substr($response, $header_size);
+		}
+
+		if(curl_error($ch))
+			throw new Exception(curl_error($ch));
 		curl_close($ch);
 
-		if(curl_error($this->ch))
-			throw new Exception(curl_error($this->ch));
-
-		return $response;
+		if($return_headers)
+			return ["header" => $header, "body" => $body];
+		else
+			return $response;
 	}
 
 	// POST to an OAuth protected resource
@@ -156,7 +169,7 @@ class ProxyAwareOAuth
 	public function post(string $uri, string $body, array $http_headers) : string
 	{
 		// Copy the curl handle template
-		$ch = $this->ch;
+		$ch = curl_copy_handle($this->ch);
 
 		// Build the request headers
 		$headers = [];
@@ -187,7 +200,7 @@ class ProxyAwareOAuth
 	public function put(string $uri, string $body, array $http_headers) : string
 	{
 		// Copy the curl handle template
-		$ch = $this->ch;
+		$ch = curl_copy_handle($this->ch);
 
 		// Build the request headers
 		$headers = [];
@@ -206,6 +219,36 @@ class ProxyAwareOAuth
 
 		if($response === false)
 			throw new Exception("PUT to $uri failed.");
+
+		return $response;
+	}
+
+	// DELETE an OAuth protected resource
+	// @param $uri -- base uri of resource
+	// @param $http_headers -- headers for request, excluding Auth
+	// @return the server response
+	public function delete(string $uri, array $http_headers) : string
+	{
+		// Copy the curl handle template
+		$ch = curl_copy_handle($this->ch);
+
+		// Build the request headers
+		$headers = [];
+		foreach($http_headers as $key => $header)
+			$headers[] = $key.": ".$header;
+		$headers[] = "Authorization: ".$this->generateAuthorizationHeaders(OAUTH_HTTP_METHOD_DELETE, $uri);
+
+		// Set headers, url; perform request
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+		curl_setopt($ch, CURLOPT_HEADER, true); // Return response header too
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_URL, $uri);
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		if($response === false)
+			throw new Exception("Delete $uri failed.");
 
 		return $response;
 	}
