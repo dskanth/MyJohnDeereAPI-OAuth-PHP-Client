@@ -2,8 +2,9 @@
 A web site that demonstrates the functionalities of the MyJohnDeere API.
 ## Requirements
 Requires PHP 7 or newer.  This code is **not** compatible with PHP 5.<br>
-Requires the PHP cURL extension to be installed and enabled.  (Check php.ini on your server.)<br>
-Tested with PHP 7.0.6 on Apache 2.4, Windows 7 x86_64.
+Requires the PHP cURL extension to be installed and enabled.  (Check php.ini on your server or install php-curl package)<br>
+Note: Tested with PHP 7.0.6 on Apache 2.4, Windows 7 x86_64. Also, tested with PHP 7.0.31 on Apache 2.4.10, Debian 3.16.57. If you have a different runtime environment, you may have to tweak in.
+You can also try downloading XAMPP for a friendly runtime environment.
 ## Credentials
 This app needs credentials from MyJohnDeere to run.  Credentials are stored in APICredentials.php
  * MyJohnDeere_API_URL -- the URL for the API catalog
