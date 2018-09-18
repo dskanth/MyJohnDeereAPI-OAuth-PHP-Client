@@ -1,10 +1,14 @@
 <!DOCTYPE html>
+<head>
 <meta charset="UTF-8">
 <title>MyJohnDeere API</title>
-<link rel="stylesheet" type="text/css" href="include/style.css">
+<link rel="stylesheet" type="text/css" href="include/style.css?v=<?php echo time();?>">
 <link rel="shortcut icon" href="include/favicon.ico">
+<link rel="stylesheet" href="include/mapStyle00.css" type="text/css">
+<script src="https://openlayers.org/en/v4.2.0/build/ol.js"></script>
 <script src="include/jquery-3.0.0.js" type="text/javascript"></script>
-
+</head>
+<body>
 <?php
 // Determine if a tab item should be highlighted
 function boldLinks(string $link)
@@ -34,11 +38,21 @@ function boldLinks(string $link)
 	<span class="header-item"><a class="header-link" href="UploadFile.php" <?php boldLinks("UploadFile.php"); ?>>Upload File</a></span>
 	<span class="header-item"><a class="header-link" href="ListFiles.php" <?php boldLinks("ListFiles.php"); ?>>List Files</a></span>
 	<span class="header-item"><a class="header-link" href="ListMonitor.php" <?php boldLinks("ListMonitor.php"); ?>>File List Monitor</a></span>
+	<span class="header-item"><a class="header-link" href="ListMachines.php" <?php boldLinks("ListMachines.php"); ?>>Machines</a></span>
+	<span class="header-item"><a class="header-link" href="ListFields.php" <?php boldLinks("ListFields.php"); ?>>Fields</a></span>
 </div>
 
 <?php
 require_once "APICredentials.php";
 require_once "ProxyAwareOAuth.php";
+
+function debug_to_console( $data ) {
+    $output = $data;
+    if ( is_array( $output ) )
+        $output = implode( ',', $output);
+
+    echo "<script>console.log( '" . $output . "' );</script>";
+}
 
 // The default accept headers used by all OAuth requests
 $headers = ["Accept" => "application/vnd.deere.axiom.v3+json"];

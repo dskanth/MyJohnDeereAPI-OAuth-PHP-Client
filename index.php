@@ -9,6 +9,7 @@ require "Header.php";
 // Replacing "oob" with an Internet-accessible callback page allows automation
 // of the OAuth verifier.  See callback.php for an example callback page.
 define("CALLBACK_URL", "oob");
+//define("CALLBACK_URL", "http://123.45.67.89/johnDeere/callback.php");
 
 // If settings changed, update and save new settings
 if(!empty($_POST["appKey"]) && !empty($_POST["appSecret"]))
