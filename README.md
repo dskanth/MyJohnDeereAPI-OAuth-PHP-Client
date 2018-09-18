@@ -5,7 +5,7 @@ A web site that demonstrates the functionalities of the MyJohnDeere API.
 ## Requirements
 Requires PHP 7 or newer.  This code is **not** compatible with PHP 5.<br>
 Requires the PHP cURL extension to be installed and enabled.  (Check php.ini on your server.)<br>
-Requires WRITE PERMISSIONS on same folder, to save TOKEN.  If you cant get an Oauth Token, check write permissions<br>
+The user Apache runs under (typically '_www' or 'apache', try `ps aux | egrep '(apache|httpd)'` to find the username) will need write permission to your hosting directory since the sample code uses a textfile to store oAuth credentials.  If you cant get an Oauth Token, check write permissions<br>
 Tested with PHP 7.0.6 on Apache 2.4, Windows 7 x86_64.
 Tested with PHP 7.2.8 on Apache 2.4.18 Ubuntu 16.04
 
